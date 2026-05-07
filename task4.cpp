@@ -7,20 +7,19 @@
 using namespace std;
 
 struct Winner {
-    string bordaWinner;
-    string condorcetWinner;
+    string condorcetWinner; //функция findCondorcetWinner должна вернуть два значения: имя победителя и флаг.
     bool condorcetFound;
 };
 
 // Подсчет очков для метода Борда
 int getBordaScore(const vector<vector<string>>& votes, string candidate) {
-    int n = votes[0].size();
+    int n = votes[0].size(); // количество кандидатов
     int total = 0;
     
     for (const auto& vote : votes) {
-        for (size_t pos = 0; pos < vote.size(); pos++) {
+        for (size_t pos = 0; pos < vote.size(); pos++) { // каждая позиция
             if (vote[pos] == candidate) {
-                total += (n - 1 - pos);
+                total += (n - 1 - pos); // за 1 место n-1 очков, за последнее 0
             }
         }
     }
@@ -29,7 +28,7 @@ int getBordaScore(const vector<vector<string>>& votes, string candidate) {
 
 // Нахождение победителя по Борда
 string findBordaWinner(const vector<vector<string>>& votes, const vector<string>& candidates) {
-    map<string, int> scores;
+    map<string, int> scores; // словарь: кандидат - сумма очков
     
     for (const string& c : candidates) {
         scores[c] = getBordaScore(votes, c);
@@ -67,49 +66,66 @@ string findBordaWinner(const vector<vector<string>>& votes, const vector<string>
 // Побеждает ли A кандидата B
 bool beats(const vector<vector<string>>& votes, string A, string B) {
     int winA = 0;
-    int total = votes.size();
+    int total = votes.size(); //колво избирателей
     
-    for (const auto& vote : votes) {
-        int posA = -1, posB = -1;
+    for (const auto& vote : votes) { //проходим по каждому голосу
+        int posA = -1, posB = -1; //позиция в голосе
         for (size_t i = 0; i < vote.size(); i++) {
-            if (vote[i] == A) posA = i;
+            if (vote[i] == A) posA = i; //запоминаем позицию
             if (vote[i] == B) posB = i;
         }
         if (posA < posB) winA++;
     }
-    return winA > total / 2;
+    return winA > total / 2; //больше чем у половины избирателей
 }
 
 // Нахождение победителя по Кондорсе
-Winner findCondorcetWinner(const vector<vector<string>>& votes, const vector<string>& candidates) {
-    for (const string& c : candidates) {
-        bool winsAll = true;
-        for (const string& other : candidates) {
+Winner findCondorcetWinner(const vector<vector<string>>& votes, const vector<string>& candidates) { //кандидат, который побеждает всех в парном сравнении
+    for (const string& c : candidates) { //перебираем всех кандидатов
+        bool winsAll = true; //Предполагаем, что кандидат c побеждает все
+        for (const string& other : candidates) { //Перебираем всех других кандидатов (кроме самого c)
             if (c == other) continue;
-            if (!beats(votes, c, other)) {
+            if (!beats(votes, c, other)) { //Вызываем beats, чтобы проверить, побеждает ли c кандидата other
                 winsAll = false;
                 break;
             }
         }
         if (winsAll) {
-            return {c, c, true};
+            return {c, true};
         }
     }
-    return {"", "", false};
+    return {"", false}; //если ни один не победил пустая структура
 }
 
 int main() {
-    vector<string> candidates = {"A", "B", "C"};
+    int numCandidates, numVoters;
     
-    vector<vector<string>> votes = {
-        {"A", "B", "C"},
-        {"A", "B", "C"},
-        {"B", "C", "A"},
-        {"B", "C", "A"},
-        {"C", "A", "B"}
-    };
+    // Ввод кандидатов
+    cout << "Введите количество кандидатов: ";
+    cin >> numCandidates;
     
-    cout << "Кандидаты: ";
+    vector<string> candidates(numCandidates);
+    cout << "Введите имена кандидатов: ";
+    for (int i = 0; i < numCandidates; i++) {
+        cin >> candidates[i];
+    }
+    
+    // Ввод голосов
+    cout << "Введите количество избирателей: ";
+    cin >> numVoters;
+    
+    vector<vector<string>> votes(numVoters, vector<string>(numCandidates));
+    
+    cout << "Введите голоса:" << endl;
+    for (int i = 0; i < numVoters; i++) {
+        cout << "Избиратель " << i+1 << ": ";
+        for (int j = 0; j < numCandidates; j++) {
+            cin >> votes[i][j];
+        }
+    }
+    
+    // Вывод результатов
+    cout << "\nКандидаты: ";
     for (string c : candidates) cout << c << " ";
     cout << endl << endl;
     
@@ -126,8 +142,8 @@ int main() {
     
     cout << "Победитель по Борда: " << bordaWinner << endl;
     
-    if (condorcetWinner.condorcetFound) {
-        cout << "Победитель по Кондорсе: " << condorcetWinner.condorcetWinner << endl;
+    if (condorcetWinner.condorcetFound) { //проверяет: найден ли победитель, condorcetWinner переменная типа Winner
+        cout << "Победитель по Кондорсе: " << condorcetWinner.condorcetWinner << endl; //Поле структуры Winner
     } else {
         cout << "Победитель по Кондорсе: не найден (цикл)" << endl;
     }

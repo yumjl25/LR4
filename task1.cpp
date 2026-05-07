@@ -18,12 +18,12 @@ vector<bisectionStep> bisection(double a, double b, double eps) {
     vector<bisectionStep> table;
     
     while ((b - a) / 2 > eps) {
-        table.push_back({a, b, b - a});
+        table.push_back({a, b, b - a}); //Сохраняем текущий отрезок в таблицу. {a, b, b-a} создаёт структуру bisectionStep
         double c = (a + b) / 2;
-        if (f(a) * f(c) < 0) b = c;
+        if (f(a) * f(c) < 0) b = c; //Если f(a) и f(c) разных знаков, значит корень в левой половине [a, c]
         else a = c;
     }
-    table.push_back({a, b, b - a});
+    table.push_back({a, b, b - a}); //После цикла сохраняем последний отрезок
     return table;
 }
 
@@ -32,7 +32,7 @@ vector<newtonStep> newton(double x, double eps) {
     vector<newtonStep> table;
     
     while (true) {
-        double x_next = x - f(x) / df(x);
+        double x_next = x - f(x) / df(x); //формула Ньютона
         double diff = fabs(x_next - x);
         table.push_back({x, x_next, diff});
         
